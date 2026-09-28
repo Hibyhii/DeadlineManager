@@ -101,7 +101,7 @@ namespace DeadlineManager.Runtime
 
                 var elapsedTime = Math.Max(
                     0f,
-                    previousFullDeadline - timeOfDay.timeUntilDeadline);
+                    newFullDeadline - timeOfDay.timeUntilDeadline);
 
                 var newRemainingTime = Math.Max(
                     0,

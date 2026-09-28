@@ -7,9 +7,12 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <AssemblyName>DeadlineManager</AssemblyName>
     <RootNamespace>DeadlineManager</RootNamespace>
-    <Version>2.0.6</Version>
+    <Version>2.0.7</Version>
     <Deterministic>true</Deterministic>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <GenerateDocumentationFile Condition="'$(DesignTimeBuild)' != 'true'">true</GenerateDocumentationFile>
+    <NoWarn Condition="'$(DesignTimeBuild)' == 'true'">$(NoWarn);CS1591</NoWarn>
+    <WarningsAsErrors Condition="'$(DesignTimeBuild)' != 'true'">$(WarningsAsErrors);CS1591</WarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>

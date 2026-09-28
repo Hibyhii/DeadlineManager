@@ -113,7 +113,7 @@ namespace DeadlineManager.Core
 
             var recent = _recentSamples
                 .Concat(new[] { sample })
-                .TakeLast(RecentSampleCapacity)
+                .Take(RecentSampleCapacity)
                 .ToArray();
 
             return new DeadlineManagerState(_calibrationSamples, recent);

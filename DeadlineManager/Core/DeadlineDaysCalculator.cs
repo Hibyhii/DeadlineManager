@@ -147,7 +147,7 @@ namespace DeadlineManager.Core
 
         private static int RoundDays(double days)
         {
-            return (int)Math.Floor(days + 0.5d);
+            return (int)Math.Round(days);
         }
     }
 }
