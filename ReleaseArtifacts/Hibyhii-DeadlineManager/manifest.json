@@ -1,9 +1,0 @@
-{
-    "name": "DeadlineManager",
-    "version_number": "2.0.3",
-	"website_url": "https://github.com/hibyhii/DeadlineManager",
-    "description": "v81 Highly configurable optionally algorithmic deadline adjustment mod.",
-    "dependencies": [
-        "BepInEx-BepInExPack-5.4.2100"
-    ]
-}
