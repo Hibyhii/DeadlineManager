@@ -11,7 +11,7 @@ namespace DeadlineManager
     {
         public const string ModGuid = "Hibyhii.DeadlineManager";
         public const string ModName = "DeadlineManager";
-        public const string ModVersion = "2.0.4";
+        public const string ModVersion = "2.0.6";
 
         private readonly Harmony _harmony = new(ModGuid);
         private ModConfiguration _configuration;

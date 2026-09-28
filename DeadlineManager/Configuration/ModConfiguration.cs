@@ -10,8 +10,8 @@ namespace DeadlineManager.Configuration
         private const int DefaultInitialDeadlineDaysFloor = 1;
         private const int DefaultDeadlineDaysUpperClamp = 10;
         private const int DefaultStaticDeadlineDays = 3;
-        private const double DefaultLinearDaysPerQuota = 0.5d;
-        private const double DefaultQuadraticGrowth = 9d;
+        private const double DefaultLinearDaysPerQuota = 1d;
+        private const double DefaultQuadraticGrowth = 1d;
         private const double DefaultDynamicUpwardPressure = 1d;
         private const double DefaultDynamicDownwardPressure = 1d;
         private ModConfiguration(DeadlineDaysSettings deadlineDays)
@@ -41,13 +41,13 @@ namespace DeadlineManager.Configuration
                 "Deadline Days",
                 "Initial Deadline Days Floor",
                 DefaultInitialDeadlineDaysFloor,
-                "Starting deadline and lower clamp for Linear/Quadratic scaling. Valid range: 1-999. Changes apply immediately.");
+                "Starting deadline and lower clamp for Linear/Quadratic scaling. Valid range: 1-999; whole numbers only. Changes apply immediately.");
 
             var upperClamp = config.Bind(
                 "Deadline Days",
                 "Deadline Days Upper Clamp",
                 DefaultDeadlineDaysUpperClamp,
-                "Maximum deadline for Linear/Quadratic scaling. Valid range: 1-999. If lower than the floor, it is raised to the floor. Changes apply immediately.");
+                "Maximum deadline for Linear/Quadratic scaling. Valid range: 1-999; whole numbers only. If lower than the floor, it is raised to the floor. Changes apply immediately.");
 
             var upperClampEnabled = config.Bind(
                 "Deadline Days",
@@ -59,31 +59,31 @@ namespace DeadlineManager.Configuration
                 "Static",
                 "Static Deadline Days",
                 DefaultStaticDeadlineDays,
-                "Deadline used by Static mode. Valid range: 1-999. Changes apply immediately.");
+                "Deadline used by Static mode. Valid range: 1-999; whole numbers only. Changes apply immediately.");
 
             var linearDaysPerQuota = config.Bind(
                 "Linear",
                 "Days Added Per Quota",
                 DefaultLinearDaysPerQuota,
-                "Days added per completed quota. Fractional values are evaluated from total quotas completed, so rounding does not accumulate. Valid range: 0-999. Changes apply immediately.");
+                "Days added per completed quota. Valid range: 0-999; fractional values are allowed. Fractional values are evaluated from total quotas completed, so rounding does not accumulate. Changes apply immediately.");
 
             var quadraticGrowth = config.Bind(
                 "Quadratic",
                 "Quadratic Growth",
                 DefaultQuadraticGrowth,
-                "Quadratic growth coefficient for floor + growth * (quotasCompleted^2 / 16). Valid range: 0-999. Changes apply immediately.");
+                "Quadratic growth coefficient for floor + growth * (quotasCompleted^2 / 16). Increasing this will make things easier over time. Valid range: 0-999; fractional values are allowed. Changes apply immediately.");
 
             var dynamicUpwardPressure = config.Bind(
                 "Dynamic",
                 "Upward Pressure",
                 DefaultDynamicUpwardPressure,
-                "How strongly under-performance grants additional deadline time. 0 disables upward adjustment. Valid range: 0-999. Changes apply immediately.");
+                "How strongly under-performance grants additional deadline time. 0 disables upward adjustment. Increasing this can make things easier. Valid range: 0-999; fractional values are allowed. Changes apply immediately.");
 
             var dynamicDownwardPressure = config.Bind(
                 "Dynamic",
                 "Downward Pressure",
                 DefaultDynamicDownwardPressure,
-                "How strongly over-performance removes deadline time. 0 disables downward adjustment. Valid range: 0-999. Changes apply immediately.");
+                "How strongly over-performance removes deadline time. 0 disables downward adjustment. Increasing this can make things harder. Valid range: 0-999; fractional values are allowed. Changes apply immediately.");
 
             DeadlineDaysSettings BuildSettings()
             {
