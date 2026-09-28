@@ -1,6 +1,6 @@
-﻿using DynamicDeadlineMod.Core;
+﻿using DeadlineManager.Core;
 
-namespace DynamicDeadline.Tests;
+namespace DeadlineManager.Tests;
 
 public sealed class DeadlineDaysCalculatorTests
 {

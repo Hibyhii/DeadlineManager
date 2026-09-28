@@ -1,6 +1,6 @@
 ﻿using HarmonyLib;
 
-namespace DynamicDeadlineMod.Patches
+namespace DeadlineManager.Patches
 {
     [HarmonyPatch(typeof(StartOfRound), nameof(StartOfRound.ResetShip))]
     internal static class ResetShipPatch

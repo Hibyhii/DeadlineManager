@@ -1,6 +1,6 @@
 ﻿using HarmonyLib;
 
-namespace DynamicDeadlineMod.Patches
+namespace DeadlineManager.Patches
 {
     [HarmonyPatch(typeof(TimeOfDay), nameof(TimeOfDay.UpdateProfitQuotaCurrentTime))]
     internal static class UpdateProfitQuotaCurrentTimePatch

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DynamicDeadlineMod.Core
+namespace DeadlineManager.Core
 {
     public static class DeadlineDaysCalculator
     {

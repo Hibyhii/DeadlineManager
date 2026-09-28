@@ -1,7 +1,7 @@
-﻿using DynamicDeadlineMod.Core;
+﻿using DeadlineManager.Core;
 using HarmonyLib;
 
-namespace DynamicDeadlineMod.Patches
+namespace DeadlineManager.Patches
 {
     [HarmonyPatch(typeof(TimeOfDay), nameof(TimeOfDay.SetNewProfitQuota))]
     internal static class SetNewProfitQuotaPatch

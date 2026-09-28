@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace DynamicDeadlineMod.Core
+namespace DeadlineManager.Core
 {
     public sealed class DeadlineManagerState
     {

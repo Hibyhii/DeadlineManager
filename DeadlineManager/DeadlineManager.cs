@@ -1,15 +1,15 @@
 ﻿using BepInEx;
-using DynamicDeadlineMod.Configuration;
-using DynamicDeadlineMod.Persistence;
-using DynamicDeadlineMod.Runtime;
+using DeadlineManager.Configuration;
+using DeadlineManager.Persistence;
+using DeadlineManager.Runtime;
 using HarmonyLib;
 
-namespace DynamicDeadlineMod
+namespace DeadlineManager
 {
     [BepInPlugin(ModGuid, ModName, ModVersion)]
     public class DeadlineManager : BaseUnityPlugin
     {
-        public const string ModGuid = "Haha.DynamicDeadline";
+        public const string ModGuid = "Hibyhii.DeadlineManager";
         public const string ModName = "DeadlineManager";
         public const string ModVersion = "2.0.0";
 

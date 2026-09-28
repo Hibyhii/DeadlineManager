@@ -1,4 +1,4 @@
-﻿namespace DynamicDeadlineMod.Core
+﻿namespace DeadlineManager.Core
 {
     public enum DeadlineBaselineMode
     {

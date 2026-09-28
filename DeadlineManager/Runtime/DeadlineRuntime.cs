@@ -1,9 +1,9 @@
 ﻿using System;
 using BepInEx.Logging;
-using DynamicDeadlineMod.Core;
-using DynamicDeadlineMod.Persistence;
+using DeadlineManager.Core;
+using DeadlineManager.Persistence;
 
-namespace DynamicDeadlineMod.Runtime
+namespace DeadlineManager.Runtime
 {
     internal sealed class DeadlineRuntime
     {

@@ -1,17 +1,17 @@
 ﻿using System;
 using BepInEx.Configuration;
 using BepInEx.Logging;
-using DynamicDeadlineMod.Core;
+using DeadlineManager.Core;
 
-namespace DynamicDeadlineMod.Configuration
+namespace DeadlineManager.Configuration
 {
     internal sealed class ModConfiguration
     {
-        private const int DefaultInitialDeadlineDaysFloor = 3;
+        private const int DefaultInitialDeadlineDaysFloor = 1;
         private const int DefaultDeadlineDaysUpperClamp = 10;
         private const int DefaultStaticDeadlineDays = 3;
         private const double DefaultLinearDaysPerQuota = 0.5d;
-        private const double DefaultQuadraticGrowth = 1d;
+        private const double DefaultQuadraticGrowth = 9d;
         private const double DefaultDynamicUpwardPressure = 1d;
         private const double DefaultDynamicDownwardPressure = 1d;
         private ModConfiguration(DeadlineDaysSettings deadlineDays)
@@ -50,7 +50,7 @@ namespace DynamicDeadlineMod.Configuration
             var upperClampEnabled = config.Bind(
                 "Deadline Days",
                 "Enable Deadline Days Upper Clamp",
-                true,
+                false,
                 "When disabled, Linear/Quadratic/Dynamic scaling has no user-configured upper deadline limit. The game/runtime numeric limit still applies. Changes require a game restart.");
 
             var staticDays = config.Bind(

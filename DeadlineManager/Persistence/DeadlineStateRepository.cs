@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using BepInEx.Logging;
-using DynamicDeadlineMod.Core;
+using DeadlineManager.Core;
 
-namespace DynamicDeadlineMod.Persistence
+namespace DeadlineManager.Persistence
 {
     internal sealed class DeadlineStateRepository
     {

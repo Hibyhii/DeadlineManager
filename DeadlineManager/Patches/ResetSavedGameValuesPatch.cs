@@ -1,6 +1,6 @@
 ﻿using HarmonyLib;
 
-namespace DynamicDeadlineMod.Patches
+namespace DeadlineManager.Patches
 {
     [HarmonyPatch(typeof(GameNetworkManager), nameof(GameNetworkManager.ResetSavedGameValues))]
     internal static class ResetSavedGameValuesPatch
