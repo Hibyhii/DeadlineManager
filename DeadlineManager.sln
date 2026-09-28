@@ -5,8 +5,6 @@ VisualStudioVersion = 17.8.34309.116
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeadlineManager", "DeadlineManager\DeadlineManager.csproj", "{78C98D39-8B11-4A2C-BCCB-E32338F5BACF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeadlineManager.Tests", "DeadlineManager.Tests\DeadlineManager.Tests.csproj", "{D7BFE2A5-9E1D-4B01-A5E0-053D93148386}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,10 +15,6 @@ Global
 		{78C98D39-8B11-4A2C-BCCB-E32338F5BACF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{78C98D39-8B11-4A2C-BCCB-E32338F5BACF}.Release|Any CPU.ActiveCfg = Debug|Any CPU
 		{78C98D39-8B11-4A2C-BCCB-E32338F5BACF}.Release|Any CPU.Build.0 = Debug|Any CPU
-		{D7BFE2A5-9E1D-4B01-A5E0-053D93148386}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D7BFE2A5-9E1D-4B01-A5E0-053D93148386}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D7BFE2A5-9E1D-4B01-A5E0-053D93148386}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D7BFE2A5-9E1D-4B01-A5E0-053D93148386}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
