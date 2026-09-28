@@ -19,7 +19,9 @@ namespace DeadlineManager.Configuration
             DeadlineDays = deadlineDays;
         }
 
-        public DeadlineDaysSettings DeadlineDays { get; }
+        public DeadlineDaysSettings DeadlineDays { get; private set; }
+
+        public event Action<DeadlineDaysSettings> DeadlineDaysChanged;
 
         public static ModConfiguration Load(ConfigFile config, ManualLogSource logger)
         {
@@ -27,131 +29,132 @@ namespace DeadlineManager.Configuration
                 "Deadline Days",
                 "Baseline Mode",
                 DeadlineBaselineMode.Quadratic,
-                "Deadline growth curve. Static ignores the shared floor/clamp. Changes require a game restart.");
+                "Deadline growth curve. Static ignores the shared floor/clamp. Changes apply immediately.");
 
             var dynamicAdjustmentEnabled = config.Bind(
                 "Deadline Days",
                 "Enable Dynamic Adjustment",
                 true,
-                "Adjust Linear or Quadratic deadlines using crew performance history. Ignored by Static. Changes require a game restart.");
+                "Adjust Linear or Quadratic deadlines using crew performance history. Ignored by Static. Changes apply immediately.");
 
             var initialFloor = config.Bind(
                 "Deadline Days",
                 "Initial Deadline Days Floor",
                 DefaultInitialDeadlineDaysFloor,
-                "Starting deadline and lower clamp for Linear/Quadratic scaling. Valid range: 1-999. Changes require a game restart.");
+                "Starting deadline and lower clamp for Linear/Quadratic scaling. Valid range: 1-999. Changes apply immediately.");
 
             var upperClamp = config.Bind(
                 "Deadline Days",
                 "Deadline Days Upper Clamp",
                 DefaultDeadlineDaysUpperClamp,
-                "Maximum deadline for Linear/Quadratic scaling. Valid range: 1-999. If lower than the floor, it is raised to the floor. Changes require a game restart.");
+                "Maximum deadline for Linear/Quadratic scaling. Valid range: 1-999. If lower than the floor, it is raised to the floor. Changes apply immediately.");
 
             var upperClampEnabled = config.Bind(
                 "Deadline Days",
                 "Enable Deadline Days Upper Clamp",
                 false,
-                "When disabled, Linear/Quadratic/Dynamic scaling has no user-configured upper deadline limit. The game/runtime numeric limit still applies. Changes require a game restart.");
+                "When disabled, Linear/Quadratic/Dynamic scaling has no user-configured upper deadline limit. The game/runtime numeric limit still applies. Changes apply immediately.");
 
             var staticDays = config.Bind(
                 "Static",
                 "Static Deadline Days",
                 DefaultStaticDeadlineDays,
-                "Deadline used by Static mode. Valid range: 1-999. Changes require a game restart.");
+                "Deadline used by Static mode. Valid range: 1-999. Changes apply immediately.");
 
             var linearDaysPerQuota = config.Bind(
                 "Linear",
                 "Days Added Per Quota",
                 DefaultLinearDaysPerQuota,
-                "Days added per completed quota. Fractional values are evaluated from total quotas completed, so rounding does not accumulate. Valid range: 0-999. Changes require a game restart.");
+                "Days added per completed quota. Fractional values are evaluated from total quotas completed, so rounding does not accumulate. Valid range: 0-999. Changes apply immediately.");
 
             var quadraticGrowth = config.Bind(
                 "Quadratic",
                 "Quadratic Growth",
                 DefaultQuadraticGrowth,
-                "Quadratic growth coefficient for floor + growth * (quotasCompleted^2 / 16). Valid range: 0-999. Changes require a game restart.");
+                "Quadratic growth coefficient for floor + growth * (quotasCompleted^2 / 16). Valid range: 0-999. Changes apply immediately.");
 
             var dynamicUpwardPressure = config.Bind(
                 "Dynamic",
                 "Upward Pressure",
                 DefaultDynamicUpwardPressure,
-                "How strongly under-performance grants additional deadline time. 0 disables upward adjustment. Valid range: 0-999. Changes require a game restart.");
+                "How strongly under-performance grants additional deadline time. 0 disables upward adjustment. Valid range: 0-999. Changes apply immediately.");
 
             var dynamicDownwardPressure = config.Bind(
                 "Dynamic",
                 "Downward Pressure",
                 DefaultDynamicDownwardPressure,
-                "How strongly over-performance removes deadline time. 0 disables downward adjustment. Valid range: 0-999. Changes require a game restart.");
+                "How strongly over-performance removes deadline time. 0 disables downward adjustment. Valid range: 0-999. Changes apply immediately.");
 
-            var repaired = false;
-
-            if (!Enum.IsDefined(typeof(DeadlineBaselineMode), baselineMode.Value))
+            DeadlineDaysSettings BuildSettings()
             {
-                logger.LogWarning(
-                    $"Invalid Baseline Mode '{baselineMode.Value}'. Resetting to {DeadlineBaselineMode.Quadratic}.");
-                baselineMode.Value = DeadlineBaselineMode.Quadratic;
-                repaired = true;
-            }
+                var repaired = false;
 
-            var floor = RepairDayValue(
-                initialFloor,
-                DefaultInitialDeadlineDaysFloor,
-                logger,
-                ref repaired);
+                if (!Enum.IsDefined(typeof(DeadlineBaselineMode), baselineMode.Value))
+                {
+                    logger.LogWarning(
+                        $"Invalid Baseline Mode '{baselineMode.Value}'. Resetting to {DeadlineBaselineMode.Quadratic}.");
+                    baselineMode.Value = DeadlineBaselineMode.Quadratic;
+                    repaired = true;
+                }
 
-            var clamp = RepairDayValue(
-                upperClamp,
-                DefaultDeadlineDaysUpperClamp,
-                logger,
-                ref repaired);
+                var floor = RepairDayValue(
+                    initialFloor,
+                    DefaultInitialDeadlineDaysFloor,
+                    logger,
+                    ref repaired);
 
-            var staticDeadline = RepairDayValue(
-                staticDays,
-                DefaultStaticDeadlineDays,
-                logger,
-                ref repaired);
+                var clamp = RepairDayValue(
+                    upperClamp,
+                    DefaultDeadlineDaysUpperClamp,
+                    logger,
+                    ref repaired);
 
-            if (upperClampEnabled.Value &&
-                clamp < floor)
-            {
-                logger.LogWarning(
-                    $"Deadline Days Upper Clamp ({clamp}) is lower than Initial Deadline Days Floor ({floor}). Raising the upper clamp to {floor}.");
-                clamp = floor;
-                upperClamp.Value = floor;
-                repaired = true;
-            }
+                var staticDeadline = RepairDayValue(
+                    staticDays,
+                    DefaultStaticDeadlineDays,
+                    logger,
+                    ref repaired);
 
-            var linearGrowth = RepairTuningValue(
-                linearDaysPerQuota,
-                DefaultLinearDaysPerQuota,
-                logger,
-                ref repaired);
+                if (upperClampEnabled.Value &&
+                    clamp < floor)
+                {
+                    logger.LogWarning(
+                        $"Deadline Days Upper Clamp ({clamp}) is lower than Initial Deadline Days Floor ({floor}). Raising the upper clamp to {floor}.");
+                    clamp = floor;
+                    upperClamp.Value = floor;
+                    repaired = true;
+                }
 
-            var quadratic = RepairTuningValue(
-                quadraticGrowth,
-                DefaultQuadraticGrowth,
-                logger,
-                ref repaired);
+                var linearGrowth = RepairTuningValue(
+                    linearDaysPerQuota,
+                    DefaultLinearDaysPerQuota,
+                    logger,
+                    ref repaired);
 
-            var upwardPressure = RepairTuningValue(
-                dynamicUpwardPressure,
-                DefaultDynamicUpwardPressure,
-                logger,
-                ref repaired);
+                var quadratic = RepairTuningValue(
+                    quadraticGrowth,
+                    DefaultQuadraticGrowth,
+                    logger,
+                    ref repaired);
 
-            var downwardPressure = RepairTuningValue(
-                dynamicDownwardPressure,
-                DefaultDynamicDownwardPressure,
-                logger,
-                ref repaired);
+                var upwardPressure = RepairTuningValue(
+                    dynamicUpwardPressure,
+                    DefaultDynamicUpwardPressure,
+                    logger,
+                    ref repaired);
 
-            if (repaired)
-            {
-                config.Save();
-            }
+                var downwardPressure = RepairTuningValue(
+                    dynamicDownwardPressure,
+                    DefaultDynamicDownwardPressure,
+                    logger,
+                    ref repaired);
 
-            return new ModConfiguration(
-                new DeadlineDaysSettings(
+                if (repaired)
+                {
+                    config.Save();
+                }
+
+                return new DeadlineDaysSettings(
                     baselineMode.Value,
                     dynamicAdjustmentEnabled.Value,
                     floor,
@@ -161,7 +164,44 @@ namespace DeadlineManager.Configuration
                     linearGrowth,
                     quadratic,
                     upwardPressure,
-                    downwardPressure));
+                    downwardPressure);
+            }
+
+            var configuration = new ModConfiguration(BuildSettings());
+            var handlingSettingChange = false;
+
+            void ApplyChangedSettings()
+            {
+                if (handlingSettingChange)
+                {
+                    return;
+                }
+
+                handlingSettingChange = true;
+                try
+                {
+                    var settings = BuildSettings();
+                    configuration.DeadlineDays = settings;
+                    configuration.DeadlineDaysChanged?.Invoke(settings);
+                }
+                finally
+                {
+                    handlingSettingChange = false;
+                }
+            }
+
+            baselineMode.SettingChanged += (_, _) => ApplyChangedSettings();
+            dynamicAdjustmentEnabled.SettingChanged += (_, _) => ApplyChangedSettings();
+            initialFloor.SettingChanged += (_, _) => ApplyChangedSettings();
+            upperClamp.SettingChanged += (_, _) => ApplyChangedSettings();
+            upperClampEnabled.SettingChanged += (_, _) => ApplyChangedSettings();
+            staticDays.SettingChanged += (_, _) => ApplyChangedSettings();
+            linearDaysPerQuota.SettingChanged += (_, _) => ApplyChangedSettings();
+            quadraticGrowth.SettingChanged += (_, _) => ApplyChangedSettings();
+            dynamicUpwardPressure.SettingChanged += (_, _) => ApplyChangedSettings();
+            dynamicDownwardPressure.SettingChanged += (_, _) => ApplyChangedSettings();
+
+            return configuration;
         }
 
         private static int RepairDayValue(

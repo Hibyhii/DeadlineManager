@@ -7,7 +7,7 @@ namespace DeadlineManager.Runtime
 {
     internal sealed class DeadlineRuntime
     {
-        private readonly DeadlineDaysSettings _settings;
+        private DeadlineDaysSettings _settings;
         private readonly DeadlineStateRepository _stateRepository;
         private readonly ManualLogSource _logger;
 
@@ -54,6 +54,99 @@ namespace DeadlineManager.Runtime
                 _logger.LogWarning(
                     $"Could not record completed quota performance: {exception.Message}");
                 return null;
+            }
+        }
+
+        public void ApplySettings(DeadlineDaysSettings settings)
+        {
+            if (settings == null)
+            {
+                return;
+            }
+
+            var previousSettings = _settings;
+            _settings = settings;
+
+            var timeOfDay = TimeOfDay.Instance;
+            if (!ShouldHandle(timeOfDay))
+            {
+                _logger.LogDebug(
+                    "Deadline settings changed outside an active host game; the new values will be used when a game is loaded.");
+                return;
+            }
+
+            try
+            {
+                var saveFile = CurrentSaveFile;
+                var state = _stateRepository.Load(saveFile);
+                var quotasCompleted = timeOfDay.timesFulfilledQuota;
+
+                var previousResult = DeadlineDaysCalculator.Calculate(
+                    previousSettings,
+                    quotasCompleted,
+                    state);
+
+                var newResult = DeadlineDaysCalculator.Calculate(
+                    settings,
+                    quotasCompleted,
+                    state);
+
+                var previousFullDeadline = CalculateDeadlineTime(
+                    timeOfDay,
+                    previousResult.DeadlineDays);
+
+                var newFullDeadline = CalculateDeadlineTime(
+                    timeOfDay,
+                    newResult.DeadlineDays);
+
+                var elapsedTime = Math.Max(
+                    0f,
+                    previousFullDeadline - timeOfDay.timeUntilDeadline);
+
+                var newRemainingTime = Math.Max(
+                    0,
+                    (int)Math.Min(
+                        int.MaxValue,
+                        newFullDeadline - elapsedTime));
+
+                timeOfDay.quotaVariables.deadlineDaysAmount =
+                    newResult.DeadlineDays;
+                timeOfDay.timeUntilDeadline = newRemainingTime;
+
+                if (!string.IsNullOrWhiteSpace(saveFile))
+                {
+                    ES3.Save(
+                        "DeadlineTime",
+                        newRemainingTime,
+                        saveFile);
+
+                    if (quotasCompleted == 0)
+                    {
+                        _stateRepository.SaveInitialFullDeadlineTime(
+                            saveFile,
+                            newFullDeadline);
+                    }
+                }
+
+                timeOfDay.UpdateProfitQuotaCurrentTime();
+                FinalizeDeadlineRefresh(timeOfDay);
+                timeOfDay.SyncTimeClientRpc(
+                    timeOfDay.globalTime,
+                    newRemainingTime);
+
+                LogDeadline(
+                    "live configuration change",
+                    quotasCompleted,
+                    newResult,
+                    state);
+
+                _logger.LogDebug(
+                    $"Live deadline reconciliation: previousFull={previousFullDeadline}, newFull={newFullDeadline}, elapsed={elapsedTime:0.##}, remaining={newRemainingTime}.");
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(
+                    $"DeadlineManager could not apply the updated configuration to the current quota. The new settings will still be used for future calculations. {exception}");
             }
         }
 

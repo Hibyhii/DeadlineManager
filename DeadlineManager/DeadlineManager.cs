@@ -11,25 +11,27 @@ namespace DeadlineManager
     {
         public const string ModGuid = "Hibyhii.DeadlineManager";
         public const string ModName = "DeadlineManager";
-        public const string ModVersion = "2.0.0";
+        public const string ModVersion = "2.0.4";
 
         private readonly Harmony _harmony = new(ModGuid);
+        private ModConfiguration _configuration;
 
         internal static DeadlineRuntime Runtime { get; private set; }
 
         internal void Awake()
         {
-            var configuration = ModConfiguration.Load(Config, Logger);
+            _configuration = ModConfiguration.Load(Config, Logger);
             var stateRepository = new DeadlineStateRepository(Logger);
             Runtime = new DeadlineRuntime(
-                configuration.DeadlineDays,
+                _configuration.DeadlineDays,
                 stateRepository,
                 Logger);
+            _configuration.DeadlineDaysChanged += Runtime.ApplySettings;
 
             _harmony.PatchAll();
 
             Logger.LogInfo(
-                $"{ModName} {ModVersion} initialized. Baseline={configuration.DeadlineDays.BaselineMode}, Dynamic={configuration.DeadlineDays.DynamicAdjustmentEnabled}, Floor={configuration.DeadlineDays.InitialDeadlineDaysFloor}, Clamp={(configuration.DeadlineDays.UpperClampEnabled ? configuration.DeadlineDays.DeadlineDaysUpperClamp.ToString() : "Off")}.");
+                $"{ModName} {ModVersion} initialized. Baseline={_configuration.DeadlineDays.BaselineMode}, Dynamic={_configuration.DeadlineDays.DynamicAdjustmentEnabled}, Floor={_configuration.DeadlineDays.InitialDeadlineDaysFloor}, Clamp={(_configuration.DeadlineDays.UpperClampEnabled ? _configuration.DeadlineDays.DeadlineDaysUpperClamp.ToString() : "Off")}.");
             Logger.LogDebug($"Harmony initialized with ID '{_harmony.Id}'.");
             LogPatchRegistration(
                 typeof(TimeOfDay),
